@@ -1,14 +1,34 @@
-function findAccountById(accounts, id) {
-  return accounts.find((account) => account.id === id);
+// Create a function that takes in 2 args
+// - An array of account objects.
+// - A string ID of a single account object.
+// return the object with the matching string(ID)
+
+
+const findAccountById = (accounts, id) => {
+  let found = accounts.find((account) => account.id === id);
+  return found;
 }
 
-function sortAccountsByLastName(accounts) {
-  return accounts.sort((accountA, accountB) => {
+// create a function that takes in 1 arg
+// - An array of objects
+// SORT thru the array to find the last names 
+// arrange the last names alphabetically 
+// return the array Sorted
+
+const sortAccountsByLastName = (accounts) => {
+  accounts.sort((accountA, accountB) => {
     const lastNameA = accountA.name.last;
     const lastNameB = accountB.name.last;
-    return lastNameA.toLowerCase() < lastNameB.toLowerCase() ? -1 : 1;
+
+    if (lastNameA < lastNameB) return -1;
+    if (lastNameA > lastNameB) return 1;
+    return 0;
   });
+
+  return accounts;
 }
+
+
 
 function getTotalNumberOfBorrows(account, books) {
   const accountId = account.id;
@@ -17,29 +37,49 @@ function getTotalNumberOfBorrows(account, books) {
     return totalBorrows;
   }, 0);
 }
+     
+
+// Creat a function that takes in 3 args
+// - An account object.
+// - An array of all book objects.
+// - An array of all author objects.
+// Create an empty array to store the checked-out books.
+// Loop over the books array using a for/in loop.
+// Check if the book has the "borrows" property.
+// Check if there are any borrow records for this book.
+// Get the most recent borrow record (the first one in the array).
+// Check if the book is currently checked out by the given account.
+// Find the author information for this book.
+// Create a new book object with author information and push it to the result array.
 
 function getBooksPossessedByAccount(account, books, authors) {
-  const accountId = account.id;
+  
+  const checkedOutBooks = [];
 
-  // Filter books that are currently borrowed by the account and not yet returned
-  const result = books
-    .filter((book) =>
-      book.borrows.some((borrow) => borrow.id === accountId && !borrow.returned)
-    )
-    .map((book) => {
-      // Find the author for the book
-      const author = authors.find((author) => author.id === book.authorId);
+  for (const bookIndex in books) {
+    const book = books[bookIndex];
+    
+    if (book.hasOwnProperty("borrows")) {
+      const { borrows } = book;
 
-      // Create a new book object with author information
-      const newBook = {
-        ...book,
-        author,
-      };
+      if (borrows && borrows.length > 0) {
+        const mostRecentBorrow = borrows[0];
 
-      return newBook;
-    });
+        if (mostRecentBorrow.id === account.id && !mostRecentBorrow.returned) {
+          const author = authors.find((author) => author.id === book.authorId);
 
-  return result;
+          const checkedOutBook = {
+            ...book, 
+            author,
+          };
+
+          checkedOutBooks.push(checkedOutBook);
+        }
+      }
+    }
+  }
+
+  return checkedOutBooks;
 }
 
 module.exports = {
@@ -47,5 +87,4 @@ module.exports = {
   sortAccountsByLastName,
   getTotalNumberOfBorrows,
   getBooksPossessedByAccount,
-}
-
+};
